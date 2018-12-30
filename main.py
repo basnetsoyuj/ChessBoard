@@ -82,6 +82,8 @@ bp=[pawn(0,(7,i),"bp.png") for i in range(1,9)]
 pieces=[wr1,wn1,wb1,wq,wk,wb2,wn2,wr2]+wp+bp+[br1,bn1,bb1,bq,bk,bb2,bn2,br2]
 
 board_dict={x.coordinate:x for x in pieces}
+turn=1
+
 
 dragging=False
 gameExit = False
@@ -106,23 +108,30 @@ while not gameExit:
             recent_pointer = coordinate_pointing()
             dragging = True
         elif event.type == pygame.MOUSEBUTTONUP:
+
             dragging = False
             latest_pointer=coordinate_pointing()
+
             if recent_pointer in board_dict:
                 piece_ = board_dict[recent_pointer]
-                if latest_pointer and (latest_pointer not in board_dict):
-                    del board_dict[recent_pointer]
-                    board_dict[latest_pointer]=piece_
-                    piece_.x, piece_.y=get_pos(latest_pointer[0],latest_pointer[1])
-                    piece_.coordinate=latest_pointer
-                else:
-                    piece_.x,piece_.y=get_pos(piece_.coordinate[0],piece_.coordinate[1])
+
+                if piece_.color == turn :
+                    if latest_pointer and (latest_pointer not in board_dict):
+                        del board_dict[recent_pointer]
+                        board_dict[latest_pointer]=piece_
+                        piece_.x, piece_.y=get_pos(latest_pointer[0],latest_pointer[1])
+                        piece_.coordinate=latest_pointer
+                        turn = (turn + 1) % 2
+                    else:
+                        piece_.x,piece_.y=get_pos(piece_.coordinate[0],piece_.coordinate[1])
         elif event.type == pygame.MOUSEMOTION:
             if dragging:
                 try:
                     mousex, mousey = pygame.mouse.get_pos()
-                    board_dict[recent_pointer].x=mousex-PIECE_SIZE//2
-                    board_dict[recent_pointer].y=mousey-PIECE_SIZE//2
+                    piece_=board_dict[recent_pointer]
+                    if piece_.color == turn :
+                        piece_.x=mousex-PIECE_SIZE//2
+                        piece_.y=mousey-PIECE_SIZE//2
                 except:
                     pass
 
