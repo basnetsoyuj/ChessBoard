@@ -86,6 +86,7 @@ board_dict={x.coordinate:x for x in pieces}
 dragging=False
 gameExit = False
 
+recent_pointer=(0,0)
 def gameloop():
     for piece in pieces:
         piece.draw(screen)
@@ -102,16 +103,28 @@ while not gameExit:
             gameExit = True
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            recent_pointer = coordinate_pointing()
             dragging = True
         elif event.type == pygame.MOUSEBUTTONUP:
             dragging = False
+            latest_pointer=coordinate_pointing()
+            if recent_pointer in board_dict:
+                piece_ = board_dict[recent_pointer]
+                if latest_pointer and (latest_pointer not in board_dict):
+                    del board_dict[recent_pointer]
+                    board_dict[latest_pointer]=piece_
+                    piece_.x, piece_.y=get_pos(latest_pointer[0],latest_pointer[1])
+                    piece_.coordinate=latest_pointer
+                else:
+                    piece_.x,piece_.y=get_pos(piece_.coordinate[0],piece_.coordinate[1])
         elif event.type == pygame.MOUSEMOTION:
             if dragging:
-                coordinate=coordinate_pointing()
-                if coordinate in board_dict:
+                try:
                     mousex, mousey = pygame.mouse.get_pos()
-                    board_dict[coordinate].x=mousex-PIECE_SIZE//2
-                    board_dict[coordinate].y=mousey-PIECE_SIZE//2
+                    board_dict[recent_pointer].x=mousex-PIECE_SIZE//2
+                    board_dict[recent_pointer].y=mousey-PIECE_SIZE//2
+                except:
+                    pass
 
     gameloop()
     pygame.display.update()
